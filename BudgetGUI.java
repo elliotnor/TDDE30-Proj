@@ -13,7 +13,7 @@ public class BudgetGUI extends JFrame {
     public BudgetGUI() {
         budgetManager = new BudgetManager();
 
-        setTitle("Budget Manager");
+        setTitle("Budgetizer");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
@@ -62,20 +62,28 @@ public class BudgetGUI extends JFrame {
     private void addTransaction() {
         try {
             double amount = Double.parseDouble(amountField.getText());
-            String sourceAccount = sourceAccountField.getText();
-            String destinationAccount = destinationAccountField.getText();
+            String sourceAccountName = sourceAccountField.getText();
+            String destinationAccountName = destinationAccountField.getText();
 
-            // Assuming TransferTransaction is a concrete subclass of Transaction
-            budgetManager.addTransaction(new TransferTransaction(amount, sourceAccount, destinationAccount));
-            displayTransactions();
+            // Create Account objects with default initial balance
+            double initialBalance = 0.0;
+            Account sourceAccount = new Account(sourceAccountName, initialBalance);
+            Account destinationAccount = new Account(destinationAccountName, initialBalance);
 
-            amountField.setText("");
-            sourceAccountField.setText("");
-            destinationAccountField.setText("");
+            // Create a TransferTransaction with the correct constructor
+            TransferTransaction transaction = new TransferTransaction(sourceAccount, destinationAccount, amount, sourceAccountName, destinationAccountName);
+
+            budgetManager.addTransaction(transaction);
+
+            displayArea.setText("Transaction added:\n" + transaction.toString());
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid amount.");
+            displayArea.setText("Invalid amount");
+        } catch (Exception ex) {
+            displayArea.setText("Error: " + ex.getMessage());
         }
     }
+
+
 
     private void displayTransactions() {
         StringBuilder displayText = new StringBuilder();
