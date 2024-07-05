@@ -9,5 +9,9 @@ public abstract class Transaction {
         this.amount = amount;
     }
 
-    public abstract void execute();
+    public double getAmount() {
+        return amount;
+    }
+
+    //public abstract void execute();
 }

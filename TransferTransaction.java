@@ -1,14 +1,22 @@
 public class TransferTransaction extends Transaction {
+    private String sourceAccount;
+    private String destinationAccount;
 
-    public TransferTransaction(Account fromAccount, Account toAccount, double amount) {
-        super(fromAccount, toAccount, amount);
+    public TransferTransaction(double amount, String sourceAccount, String destinationAccount) {
+        super(amount);
+        this.sourceAccount = sourceAccount;
+        this.destinationAccount = destinationAccount;
     }
 
     @Override
-    public void execute() {
-        if (fromAccount != null && toAccount != null && fromAccount.getBalance() >= amount) {
-            fromAccount.withdraw(amount);
-            toAccount.deposit(amount);
-        }
+    public String toString() {
+        return "TransferTransaction{" +
+                "amount=" + getAmount() +
+                ", sourceAccount='" + sourceAccount + '\'' +
+                ", destinationAccount='" + destinationAccount + '\'' +
+                '}';
     }
 }
+
+
+
