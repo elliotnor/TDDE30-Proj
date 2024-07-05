@@ -10,6 +10,7 @@ public class BudgetGUI extends JFrame {
     private JTextField destinationAccountField;
     private JButton addButton;
     private JTextArea displayArea;
+    private JPanel graphPanel;
 
     public BudgetGUI() {
         budgetManager = new BudgetManager();
@@ -20,8 +21,8 @@ public class BudgetGUI extends JFrame {
 
         // Get screen dimensions
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.width * 0.9); // 85% of screen width
-        int height = (int) (screenSize.height * 0.9); // 85% of screen height
+        int width = (int) (screenSize.width * 0.85); // 85% of screen width
+        int height = (int) (screenSize.height * 0.85); // 85% of screen height
         setSize(width, height);
         setLocationRelativeTo(null); // Center the window
 
@@ -53,16 +54,23 @@ public class BudgetGUI extends JFrame {
         addButton.setBounds(10, 110, 150, 25);
         add(addButton);
 
-        // Widen the displayArea
+        // Set displayArea to take up 50% of the width
         displayArea = new JTextArea();
-        displayArea.setBounds(10, 140, width - (width/2), height-200); // Adjust width and height as needed
+        displayArea.setBounds(10, 140, width / 2 - 20, height - 200); // Adjust width and height as needed
         displayArea.setEditable(false);
         add(displayArea);
+
+        // Set graphPanel to take up the other 50% of the width
+        graphPanel = new JPanel();
+        graphPanel.setBounds(width / 2, 140, width / 2 - 20, height - 200); // Adjust width and height as needed
+        graphPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        add(graphPanel);
 
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 addTransaction();
+                updateGraph();
             }
         });
     }
@@ -89,6 +97,14 @@ public class BudgetGUI extends JFrame {
         } catch (Exception ex) {
             displayArea.setText("Error: " + ex.getMessage());
         }
+    }
+
+    private void updateGraph() {
+        // Placeholder for graph update logic
+        graphPanel.removeAll();
+        graphPanel.add(new JLabel("Graph data here"));
+        graphPanel.revalidate();
+        graphPanel.repaint();
     }
 
     public static void main(String[] args) {
