@@ -29,4 +29,9 @@ public class BudgetManager {
             budgetOption.apply();
         }
     }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
 }

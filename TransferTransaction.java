@@ -2,8 +2,8 @@ public class TransferTransaction extends Transaction {
     private String sourceAccount;
     private String destinationAccount;
 
-    public TransferTransaction(double amount, String sourceAccount, String destinationAccount) {
-        super(amount);
+    public TransferTransaction(Account fromAccount, Account toAccount, double amount, String sourceAccount, String destinationAccount) {
+        super(fromAccount, toAccount, amount);
         this.sourceAccount = sourceAccount;
         this.destinationAccount = destinationAccount;
     }
@@ -16,7 +16,9 @@ public class TransferTransaction extends Transaction {
                 ", destinationAccount='" + destinationAccount + '\'' +
                 '}';
     }
+
+    @Override
+    public void execute() {
+
+    }
 }
-
-
-

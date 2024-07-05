@@ -13,5 +13,5 @@ public abstract class Transaction {
         return amount;
     }
 
-    //public abstract void execute();
+    public abstract void execute();
 }
