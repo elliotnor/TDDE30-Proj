@@ -4,10 +4,13 @@ import java.util.List;
 public class BudgetManager {
     private List<Transaction> transactions;
     private List<BudgetOption> budgetOptions;
+    private User user;
 
-    public BudgetManager() {
+
+    public BudgetManager(User user) {
         transactions = new ArrayList<>();
         budgetOptions = new ArrayList<>();
+        this.user = user;
     }
 
     public void addTransaction(Transaction transaction) {
@@ -18,6 +21,10 @@ public class BudgetManager {
         for (Transaction transaction : transactions) {
             transaction.execute();
         }
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public void addBudgetOption(BudgetOption budgetOption) {

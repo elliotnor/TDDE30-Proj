@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +15,7 @@ public class BudgetGUI extends JFrame {
     private JPanel graphPanel;
 
     public BudgetGUI() {
-        budgetManager = new BudgetManager();
+        budgetManager = new BudgetManager(new User("John Doe", 1000.0));
 
         setTitle("Budgetizer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,111 +46,51 @@ public class BudgetGUI extends JFrame {
 
         JLabel destinationAccountLabel = new JLabel("Destination Account:");
         destinationAccountLabel.setBounds(10, 80, 150, 25);
-        add(destinationAccountLabel);
+        add(destinationAccountField);
 
         destinationAccountField = new JTextField(20);
         destinationAccountField.setBounds(150, 80, 165, 25);
         add(destinationAccountField);
 
-        addButton = new JButton("Add Transaction");
+        JButton addButton = new JButton("Add Transaction");
         addButton.setBounds(10, 110, 150, 25);
         add(addButton);
 
-        // Set up the transaction table
-        String[] columnNames = {"Amount", "Source Account", "Destination Account"};
-        tableModel = new DefaultTableModel(columnNames, 0);
-        transactionTable = new JTable(tableModel);
-        transactionTable.setGridColor(Color.BLACK); // Set grid color
-        transactionTable.setShowVerticalLines(true); // Ensure vertical lines are shown
-        transactionTable.setIntercellSpacing(new Dimension(1, 1)); // Add spacing between cells for better visibility
+        // Savings Goals Components
+        JLabel goalNameLabel = new JLabel("Savings Goal Name:");
+        goalNameLabel.setBounds(10, 140, 150, 25);
+        add(goalNameLabel);
 
-        // Custom renderer for thicker vertical lines
-        transactionTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (column < table.getColumnCount() - 1) {
-                    ((JComponent) cell).setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK)); // Vertical line on the right
-                } else {
-                    ((JComponent) cell).setBorder(BorderFactory.createEmptyBorder()); // No border for the last column
-                }
-                return cell;
-            }
-        });
+        JTextField goalNameField = new JTextField(20);
+        goalNameField.setBounds(150, 140, 165, 25);
+        add(goalNameField);
 
-        // Custom header renderer for larger text and horizontal line
-        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                JLabel headerLabel = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD, 14)); // Larger and bold text
-                headerLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center text
-                headerLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK)); // Bottom border
-                return headerLabel;
-            }
-        };
-        for (int i = 0; i < transactionTable.getColumnModel().getColumnCount(); i++) {
-            transactionTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-        }
+        JLabel goalAmountLabel = new JLabel("Target Amount:");
+        goalAmountLabel.setBounds(10, 170, 150, 25);
+        add(goalAmountLabel);
 
-        JScrollPane scrollPane = new JScrollPane(transactionTable);
-        scrollPane.setBounds(10, 140, width / 2 - 20, height - 200);
-        add(scrollPane);
+        JTextField goalAmountField = new JTextField(10);
+        goalAmountField.setBounds(150, 170, 165, 25);
+        add(goalAmountField);
 
-        // Set graphPanel to take up the other 50% of the width
-        graphPanel = new JPanel();
-        graphPanel.setBounds(width / 2, 140, width / 2 - 20, height - 200); // Adjust width and height as needed
-        graphPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        add(graphPanel);
+        JButton addGoalButton = new JButton("Add Goal");
+        addGoalButton.setBounds(10, 200, 150, 25);
+        add(addGoalButton);
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
+        addGoalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addTransaction();
-                updateGraph();
+                String name = goalNameField.getText();
+                double targetAmount = Double.parseDouble(goalAmountField.getText());
+                SavingsGoal goal = new SavingsGoal(name, targetAmount);
+                budgetManager.getUser().addSavingsGoal(goal);
+                // Update the UI to reflect the new goal
             }
         });
-    }
 
-    private void addTransaction() {
-        try {
-            double amount = Double.parseDouble(amountField.getText());
-            String sourceAccountName = sourceAccountField.getText();
-            String destinationAccountName = destinationAccountField.getText();
-
-            // Create Account objects with default initial balance
-            double initialBalance = 0.0;
-            Account sourceAccount = new Account(sourceAccountName, initialBalance);
-            Account destinationAccount = new Account(destinationAccountName, initialBalance);
-
-            // Create a TransferTransaction with the correct constructor
-            TransferTransaction transaction = new TransferTransaction(sourceAccount, destinationAccount, amount, sourceAccountName, destinationAccountName);
-
-            budgetManager.addTransaction(transaction);
-
-            // Add transaction data to the table
-            tableModel.addRow(new Object[]{amount, sourceAccountName, destinationAccountName});
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid amount", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void updateGraph() {
-        // Placeholder for graph update logic
-        graphPanel.removeAll();
-        graphPanel.add(new JLabel("Graph data here"));
-        graphPanel.revalidate();
-        graphPanel.repaint();
+        setVisible(true);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new BudgetGUI().setVisible(true);
-            }
-        });
+        new BudgetGUI();
     }
 }
