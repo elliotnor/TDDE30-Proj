@@ -5,16 +5,23 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class BudgetGUI extends JFrame {
     private BudgetManager budgetManager;
     private JTextField amountField;
     private JTextField sourceAccountField;
     private JTextField destinationAccountField;
+    private JTextField goalNameField;
+    private JTextField goalAmountField;
+    private JTextField targetMonthsField;
     private JButton addButton;
+    private JButton createGoalButton;
+    private JButton transferToGoalButton;
     private JTable transactionTable;
     private DefaultTableModel tableModel;
     private JPanel graphPanel;
+    private JTextArea displayArea;
 
     public BudgetGUI() {
         budgetManager = new BudgetManager();
@@ -58,6 +65,44 @@ public class BudgetGUI extends JFrame {
         addButton.setBounds(10, 110, 150, 25);
         add(addButton);
 
+        JLabel goalNameLabel = new JLabel("Goal Name:");
+        goalNameLabel.setBounds(10, 140, 120, 25);
+        add(goalNameLabel);
+
+        goalNameField = new JTextField(20);
+        goalNameField.setBounds(150, 140, 165, 25);
+        add(goalNameField);
+
+        JLabel goalAmountLabel = new JLabel("Goal Amount:");
+        goalAmountLabel.setBounds(10, 170, 120, 25);
+        add(goalAmountLabel);
+
+        goalAmountField = new JTextField(20);
+        goalAmountField.setBounds(150, 170, 165, 25);
+        add(goalAmountField);
+
+        JLabel targetMonthsLabel = new JLabel("Target Months:");
+        targetMonthsLabel.setBounds(10, 200, 120, 25);
+        add(targetMonthsLabel);
+
+        targetMonthsField = new JTextField(20);
+        targetMonthsField.setBounds(150, 200, 165, 25);
+        add(targetMonthsField);
+
+        createGoalButton = new JButton("Create Savings Goal");
+        createGoalButton.setBounds(10, 230, 150, 25);
+        add(createGoalButton);
+
+        transferToGoalButton = new JButton("Transfer to Savings");
+        transferToGoalButton.setBounds(10, 260, 150, 25);
+        add(transferToGoalButton);
+
+        displayArea = new JTextArea();
+        displayArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(displayArea);
+        scrollPane.setBounds(10, 290, width / 2 - 20, height - 350);
+        add(scrollPane);
+
         // Set up the transaction table
         String[] columnNames = {"Amount", "Source Account", "Destination Account"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -95,13 +140,13 @@ public class BudgetGUI extends JFrame {
             transactionTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
         }
 
-        JScrollPane scrollPane = new JScrollPane(transactionTable);
-        scrollPane.setBounds(10, 140, width / 2 - 20, height - 200);
-        add(scrollPane);
+        JScrollPane transactionScrollPane = new JScrollPane(transactionTable);
+        transactionScrollPane.setBounds(width / 2, 20, width / 2 - 20, height - 350);
+        add(transactionScrollPane);
 
         // Set graphPanel to take up the other 50% of the width
         graphPanel = new JPanel();
-        graphPanel.setBounds(width / 2, 140, width / 2 - 20, height - 200); // Adjust width and height as needed
+        graphPanel.setBounds(10, height - 310, width - 20, 300); // Adjust width and height as needed
         graphPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         add(graphPanel);
 
@@ -110,6 +155,20 @@ public class BudgetGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 addTransaction();
                 updateGraph();
+            }
+        });
+
+        createGoalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createSavingsGoal();
+            }
+        });
+
+        transferToGoalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                transferToSavingsGoal();
             }
         });
     }
@@ -137,6 +196,43 @@ public class BudgetGUI extends JFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void createSavingsGoal() {
+        try {
+            String userName = "defaultUser"; // Assuming a single user for simplicity
+            String goalName = goalNameField.getText();
+            double goalAmount = Double.parseDouble(goalAmountField.getText());
+            int targetMonths = Integer.parseInt(targetMonthsField.getText());
+
+            budgetManager.createSavingsGoal(userName, goalName, goalAmount, targetMonths);
+            displayArea.setText("Savings goal created for " + userName);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void transferToSavingsGoal() {
+        try {
+            String userName = "defaultUser"; // Assuming a single user for simplicity
+            String goalName = goalNameField.getText();
+            double amount = Double.parseDouble(goalAmountField.getText());
+
+            budgetManager.transferToSavings(userName, goalName, amount);
+            displayArea.setText("Transferred " + amount + " to " + goalName + " for " + userName);
+            displaySavingsGoals(userName);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void displaySavingsGoals(String userName) {
+        List<SavingsGoal> goals = budgetManager.getUserSavingsGoals(userName);
+        StringBuilder sb = new StringBuilder();
+        for (SavingsGoal goal : goals) {
+            sb.append(goal.toString()).append("\n");
+        }
+        displayArea.setText(sb.toString());
     }
 
     private void updateGraph() {
